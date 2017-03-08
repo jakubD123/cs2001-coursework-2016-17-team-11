@@ -1,32 +1,34 @@
-package com.example.zohaib.unibuddy;
+package com.rathor.hci.activity;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
+import com.rathor.hci.R;
+import com.rathor.hci.utils.AppSession;
+import com.rathor.hci.utils.FileCache;
+import com.rathor.hci.utils.Utils;
+import com.soundcloud.android.crop.Crop;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -36,9 +38,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-
 public class RegistrationActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
-
 
     private ProgressDialog mBar;
     private Spinner mSpinDay, mSpinMonth, mSpinYear, mSpinGender, mSpinAccom;
@@ -56,36 +56,23 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
     private EditText mEtFname, mEtLname, mEtMobile, mEtEmail, mEtConfirmEmail, mEtPassword, mEtConfPasswprd,
             mEtUniversity, mEtLevel, mEtCourse;
 
+    @Override
+    public void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
+        FileCache fileCache = new FileCache(RegistrationActivity.this);
+        File file = fileCache.getFile(mImageUrl);
+        sBitmap = Utils.decodeFile(file, 400);
+        if (sBitmap != null) {
+            mIvProfile.setImageBitmap(sBitmap);
 
-
-
-
-    private EditText inputEmail, inputPassword;
-    private Button btnSignIn, btnSignUp, btnResetPassword;
-    private ProgressBar progressBar;
-    private FirebaseAuth auth;
-
-
-
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registration);
-
-        //Get Firebase auth instance
-        auth = FirebaseAuth.getInstance();
-
-        //btnSignIn = (Button) findViewById(R.id.sign_in_button_email);
-        btnSignUp = (Button) findViewById(R.id.buttonSign_up);
-        inputEmail = (EditText) findViewById(R.id.email);
-        inputPassword = (EditText) findViewById(R.id.password);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
-
-
-
-
+        setContentView(R.layout.registration_activity);
 
         mTvPersonal = (TextView) findViewById(R.id.tvPersonal);
         mTvLoginDetails = (TextView) findViewById(R.id.tvLoginDetails);
@@ -95,11 +82,11 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
         mLinerUniversity = (LinearLayout) findViewById(R.id.linerUniversity);
         TextView tvRegistration = (TextView) findViewById(R.id.toolbar_title);
         ImageView ivBack = (ImageView) findViewById(R.id.iv_left);
-//        tvRegistration.setText("Sign Up");
+        tvRegistration.setText("Sign Up");
         mImageUrl = "1234" + ".bk";
 
         mBar = new ProgressDialog(this);
-//        mBar.setMessage(getResources().getString(R.string.Please_wait));
+        mBar.setMessage(getResources().getString(R.string.Please_wait));
         mBar.setCancelable(false);
 
         mSpinDay = (Spinner) findViewById(R.id.spinner1);
@@ -108,14 +95,14 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
         mSpinGender = (Spinner) findViewById(R.id.spinner4);
         mSpinAccom = (Spinner) findViewById(R.id.spinner5);
 
-        TextView btnSignUp = (TextView) findViewById(R.id.buttonSign_up);
+        TextView btnSignUp = (TextView) findViewById(R.id.tvSubmit);
         mIvProfile = (ImageView) findViewById(R.id.ivProfile);
         mEtFname = (EditText) findViewById(R.id.editText1);
         mEtLname = (EditText) findViewById(R.id.editText2);
         mEtMobile = (EditText) findViewById(R.id.editText3);
-        mEtEmail = (EditText) findViewById(R.id.email);
+        mEtEmail = (EditText) findViewById(R.id.editText4);
         mEtConfirmEmail = (EditText) findViewById(R.id.editText5);
-        mEtPassword = (EditText) findViewById(R.id.password);
+        mEtPassword = (EditText) findViewById(R.id.editText6);
         mEtConfPasswprd = (EditText) findViewById(R.id.editText7);
         mEtUniversity = (EditText) findViewById(R.id.editText8);
         mEtLevel = (EditText) findViewById(R.id.editText9);
@@ -124,10 +111,10 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
         mTvPersonal.setOnClickListener(this);
         mTvLoginDetails.setOnClickListener(this);
         mTvUnivercity.setOnClickListener(this);
-//        ivBack.setOnClickListener(this);
+        ivBack.setOnClickListener(this);
         btnSignUp.setOnClickListener(this);
         mIvProfile.setOnClickListener(this);
-//        ivBack.setVisibility(View.VISIBLE);
+        ivBack.setVisibility(View.VISIBLE);
 
         mSpinDay.setOnItemSelectedListener(this);
         mSpinMonth.setOnItemSelectedListener(this);
@@ -141,80 +128,10 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 
         setSpinGgnder();
         setSpinnerDay();
-//        setSpinnerMonth();
+        setSpinnerMonth();
         setSpinnerYear();
         setSpinAccom();
-
-
-
-
-
-
-
-
-
-
-
-
-
-        btnSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String email = inputEmail.getText().toString().trim();
-                String password = inputPassword.getText().toString().trim();
-
-                if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(getApplicationContext(), "Enter password!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (password.length() < 6) {
-                    Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                progressBar.setVisibility(View.VISIBLE);
-                //create user
-                auth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                Toast.makeText(RegistrationActivity.this, "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE);
-                                // If sign in fails, display a message to the user. If sign in succeeds
-                                // the auth state listener will be notified and logic to handle the
-                                // signed in user can be handled in the listener.
-                                if (!task.isSuccessful()) {
-                                    Toast.makeText(RegistrationActivity.this, "Authentication failed." + task.getException(),
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
-                                    finish();
-                                }
-                            }
-                        });
-
-
-
-                signUp();
-
-            }
-        });
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        progressBar.setVisibility(View.GONE);
-    }
-
-
 
 
     private void signUp() {
@@ -277,9 +194,9 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
             Toast.makeText(this, getResources().getString(R.string.Please_enter_Course), Toast.LENGTH_SHORT).show();
         } else if (mAccomodation.equals("")) {
             Toast.makeText(this, getResources().getString(R.string.lease_select_Accomodation), Toast.LENGTH_SHORT).show();
-        }/*else if (sBitmap==null) {
+        }else if (sBitmap==null) {
             Toast.makeText(this, getResources().getString(R.string.lease_select_profile_image), Toast.LENGTH_SHORT).show();
-        }*/ else {
+        } else {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
@@ -296,12 +213,12 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                 finish();
                 break;
 
-            case R.id.buttonSign_up:
+            case R.id.tvSubmit:
                 signUp();
                 break;
 
             case R.id.ivProfile:
-                //dialogPhoto();
+                dialogPhoto();
                 break;
             case R.id.tvPersonal:
                 if (mIsPersonalOpen) {
@@ -479,9 +396,9 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
     private void setSpinnerYear() {
         ArrayList<String> years = new ArrayList<>();
         years.add(0, "Year");
-        int minYear = 1940;
-        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-        for (int i = minYear; i <= currentYear; i++) {
+        int minYear = 2010;
+
+        for (int i = minYear; i <= 2080; i++) {
             years.add(String.valueOf(i));
         }
 
@@ -489,12 +406,65 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
         yearAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown);
         mSpinYear.setAdapter(yearAdapter);
     }
+
+
+    private void dialogPhoto() {
+        final CharSequence[] items = getResources().getStringArray(R.array.gallery);
+        AlertDialog.Builder builder = new AlertDialog.Builder(RegistrationActivity.this);
+        builder.setTitle(getResources().getString(R.string.Select_Option));
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                if (item == 0) {
+                    FileCache fileCache = new FileCache(RegistrationActivity.this);
+                    File file = fileCache.getFile(AppSession.getInstance(RegistrationActivity.this).getUserID());
+                    Crop.pickImageCamera(RegistrationActivity.this, file);
+                } else if (item == 1) {
+                    Crop.pickImage(RegistrationActivity.this);
+                }
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent result) {
+        if (requestCode == Crop.REQUEST_PICK && resultCode == RESULT_OK) {
+            beginCrop(result.getData());
+        } else if (requestCode == Crop.REQUEST_CAMERA && resultCode == RESULT_OK) {
+            FileCache fileCache = new FileCache(this);
+            File file = fileCache.getFile("1234.bk");
+            Uri uri = Uri.fromFile(file);
+            beginCropFromCamera(uri, uri);
+
+        } else if (requestCode == Crop.REQUEST_CROP) {
+            handleCrop(resultCode, result);
+        }
+
+    }
+
+    private void beginCrop(Uri source) {
+        FileCache fileCache = new FileCache(this);
+        File file = fileCache.getFile("1234.bk");
+        Uri uri = Uri.fromFile(file);
+        Crop.of(source, uri).asSquare().start(this);
+    }
+
+    private void beginCropFromCamera(Uri source, Uri destination) {
+        Crop.of(source, destination).asSquare().start(this);
+    }
+
+    private void handleCrop(int resultCode, Intent result) {
+        if (resultCode == RESULT_OK) {
+            uploadImage(Crop.getOutput(result));
+        } else if (resultCode == Crop.RESULT_ERROR) {
+        }
+    }
+
+    public void uploadImage(Uri imageUri) {
+        Bitmap bitmap = BitmapFactory.decodeFile(imageUri.getPath());
+        mIvProfile.setImageBitmap(bitmap);
+
+    }
 }
-
-
-
-
-
-
-
-
